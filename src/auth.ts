@@ -1,0 +1,126 @@
+import NextAuth, { AuthError, NextAuthConfig } from "next-auth"
+import CredentialProvider from "next-auth/providers/credentials"
+import GoogleProvider from "next-auth/providers/google"
+import prisma from "./prismaClient"
+import { compare } from "bcryptjs"
+
+export const authOptions: NextAuthConfig = {
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+      allowDangerousEmailAccountLinking: true,
+    }),
+    CredentialProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      authorize: async (credentials: any) => {
+        const user = await prisma.user.findUnique({ where: { email: credentials.email } })
+        if (!user) throw new Error("invalid email or password")
+        const isMatch = await compare(credentials.password, user.password || "")
+        if (!isMatch) throw new Error("incorrect password")
+        if (!user.isVerified) throw new Error("Account not verified. Please verify your email before logging in.")
+        return {  
+          id: user.id,           
+          name: user.name || "", 
+          email: user.email, 
+          isVerified: user.isVerified, 
+          stripeCustomerId: user.stripeCustomerId,
+        }
+      },
+    }),
+  ],
+
+  secret: process.env.AUTH_SECRET,
+  debug: true,
+  session: { strategy: "jwt" },
+  pages: { signIn: "/sign-in" },
+
+  callbacks: {
+    signIn: async ({ user, account }) => {
+      if (account?.provider === "google") {
+        try {
+          const existing = await prisma.user.findUnique({ where: { email: user.email! } })
+          if (!existing) {
+            await prisma.user.create({
+              data: { 
+                 name: user.name!, email: user.email!, isVerified: true, provider: "google", password: ""
+              },
+            })
+          }
+          return true
+        } catch {
+          throw new AuthError("Error while creating user")
+        }
+      }
+      return true  // allow credentials sign-in
+    },
+    async jwt({ token, user }) {
+      // Initial sign-in: `user` is present
+        if (user) {
+          const dbUser = await prisma.user.findUnique({
+            where: { email: user.email! },
+            include: { 
+              tenants: {
+                include: {
+                  tenant: true
+                }
+              }
+            },
+          });
+      
+          if (dbUser) {
+            token.id = dbUser.id;
+            token.name = dbUser.name;
+            token.email = dbUser.email;
+            token.isVerified = dbUser.isVerified;
+            token.stripeCustomerId = dbUser.stripeCustomerId;
+      
+            // Check if user is superAdmin (temporary workaround until Prisma client is regenerated)
+            const isSuperAdmin = dbUser.email === "superadmin@gmail.com";
+            
+            console.log("🔍 Auth Debug:", {
+              email: dbUser.email,
+              isSuperAdmin,
+              tenants: dbUser.tenants.length
+            });
+            
+            if (isSuperAdmin) {
+              token.role = "superAdmin";
+              token.tenantId = null;
+              token.tenantName = null;
+              console.log("✅ Setting superAdmin role for:", dbUser.email);
+            } else {
+              // If user has multiple tenants, pick the first or let user choose later
+              const tenantUser = dbUser.tenants[0];
+              token.role = tenantUser?.role || null;
+              token.tenantId = tenantUser?.tenantId || null;
+              token.tenantName = tenantUser?.tenant?.name || null;
+            }
+          }
+        }
+        return token;
+      
+    },
+    session: async ({ session, token }) => {
+      session.user = {
+        id: token.id as string,
+        name: token.name as string,
+        email: token.email as string,
+        role: token.role as string,
+        tenantId: token.tenantId as string,
+        tenantName: token.tenantName as string,
+        isVerified: token.isVerified as boolean,  
+        stripeCustomerId: token.stripeCustomerId as string | null,
+        emailVerified: null,
+      }
+      
+      return session
+    },
+  },
+}
+
+export const { handlers, signIn, signOut, auth } = NextAuth(authOptions)
