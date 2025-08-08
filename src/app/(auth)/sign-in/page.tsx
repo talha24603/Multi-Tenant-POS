@@ -35,7 +35,12 @@ export default function SignInPage() {
       console.log("Sign in response:", result);
       if (!result || result.error) {
         console.error("Sign in error:", result?.error);
-        throw new Error(result?.error || "Sign in failed");
+        if (result?.error?.includes("fetch")) {
+          toast.error("Network error. Please check your connection.");
+        } else {
+          toast.error(result?.error || "Invalid email or password");
+        }
+        return;
       }
   
       if (result?.ok) {
@@ -47,7 +52,7 @@ export default function SignInPage() {
       }
     } catch (error) {
       console.error("Sign in error:", error);
-      toast.error("Invalid email or password");
+      toast.error("An error occurred during sign in. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -62,7 +67,7 @@ export default function SignInPage() {
       // The useEffect will detect the session change and handle the redirect
     } catch (error) {
       console.error("Google sign in error:", error);
-      toast.error("Google sign in failed");
+      toast.error("Google sign in failed. Please try again.");
       setGoogleLoading(false);
     }
   }
@@ -100,6 +105,16 @@ export default function SignInPage() {
   useEffect(() => {
     console.log("Session status:", status);
     console.log("Session data:", session);
+    
+    if (status === "loading") {
+      console.log("Session is loading...");
+      return;
+    }
+    
+    if (status === "unauthenticated") {
+      console.log("User is not authenticated");
+      return;
+    }
     
     if (status === "authenticated" && session?.user) {
       const role = session.user.role;
