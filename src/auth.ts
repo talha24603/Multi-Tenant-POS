@@ -6,7 +6,18 @@ import { compare } from "bcryptjs"
 
 // Validate required environment variables
 if (!process.env.AUTH_SECRET) {
-  throw new Error("AUTH_SECRET environment variable is required")
+  console.error("AUTH_SECRET environment variable is missing")
+  // Don't throw in production, just log the error
+  if (process.env.NODE_ENV === 'development') {
+    throw new Error("AUTH_SECRET environment variable is required")
+  }
+}
+
+if (!process.env.DATABASE_URL) {
+  console.error("DATABASE_URL environment variable is missing")
+  if (process.env.NODE_ENV === 'development') {
+    throw new Error("DATABASE_URL environment variable is required")
+  }
 }
 
 if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
@@ -50,7 +61,7 @@ export const authOptions: NextAuthConfig = {
     }),
   ],
 
-  secret: process.env.AUTH_SECRET,
+  secret: process.env.AUTH_SECRET || "fallback-secret-for-development",
   debug: process.env.NODE_ENV === 'development',
   session: { strategy: "jwt" },
   pages: { signIn: "/sign-in" },
