@@ -25,8 +25,6 @@ export async function GET(request: NextRequest) {
     console.log(startOfMonth, endOfMonth, startOfLastMonth, endOfLastMonth);
     
 
-    // Build where clause for tenant filtering
-    // const whereClause: any = {}
     if ( !session.user.tenantId) {
       return NextResponse.json({ error: "Tenant not found" }, { status: 404 })
     }

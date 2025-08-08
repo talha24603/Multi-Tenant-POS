@@ -5,9 +5,10 @@ import prisma from "@/prismaClient";
 // GET /api/admin/tenants/[id] - Get detailed tenant information
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await auth();
     
     if (session?.user?.role !== "superAdmin") {
@@ -15,7 +16,7 @@ export async function GET(
     }
 
     const tenant = await prisma.tenant.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         users: {
           include: {

@@ -1,7 +1,6 @@
 "use client"
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
 import { useEffect, useState } from "react"
 
 interface RecentSale {
@@ -85,9 +84,9 @@ export function RecentSales() {
           </div>
           <div className="ml-auto font-medium flex items-center gap-2">
             <span>{sale.amount}</span>
-            <Badge variant={sale.status === "completed" ? "default" : "secondary"}>
+            {/* <Badge variant={sale.status === "completed" ? "default" : "secondary"}>
               {sale.status}
-            </Badge>
+            </Badge> */}
           </div>
         </div>
       ))}

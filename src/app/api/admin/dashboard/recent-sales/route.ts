@@ -12,19 +12,20 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user is an admin (OWNER or superAdmin)
-    if (session.user.role !== "OWNER" && session.user.role !== "superAdmin") {
+    if (session.user.role !== "OWNER" ) {
       return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
     }
 
     // Build where clause for tenant filtering
-    const whereClause: any = {}
-    if (session.user.role !== "superAdmin" && session.user.tenantId) {
-      whereClause.tenantId = session.user.tenantId
+    if (! session.user.tenantId) {
+      return NextResponse.json({ error: "Tenant not found" }, { status: 404 })
     }
 
     // Get recent sales with customer and user information
     const recentSales = await prisma.sale.findMany({
-      where: whereClause,
+      where: {
+        tenantId: session.user.tenantId
+      },
       include: {
         customer: {
           select: {
@@ -32,12 +33,12 @@ export async function GET(request: NextRequest) {
             email: true
           }
         },
-        user: {
-          select: {
-            name: true,
-            email: true
-          }
-        },
+        // user: {
+        //   select: {
+        //     name: true,
+        //     email: true
+        //   }
+        // },
         items: {
           select: {
             id: true
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: 'desc'
       },
-      take: 10
+      take: 5
     })
 
     // Format the data for the frontend

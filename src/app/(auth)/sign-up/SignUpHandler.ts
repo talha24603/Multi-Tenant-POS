@@ -49,7 +49,6 @@ export default async function SignUpHandler(payload: { email: string, password: 
       password: hashedPassword,
       otp,
       otpExpiresAt: otpExpiry,
-      role: 'tenantadmin' as string,
     },
   })
 

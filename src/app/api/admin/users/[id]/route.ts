@@ -4,9 +4,10 @@ import { auth } from "@/auth"
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     // Get the current session to verify admin permissions
     const session = await auth()
     
@@ -19,7 +20,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
     }
 
-    const userId = params.id
+    const userId = id
 
     // Validate user ID
     if (!userId) {
@@ -98,9 +99,10 @@ export async function DELETE(
 // Optional: Add GET method to get user details
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     // Get the current session to verify admin permissions
     const session = await auth()
     
@@ -113,7 +115,7 @@ export async function GET(
       return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
     }
 
-    const userId = params.id
+    const userId = id
 
     // Validate user ID
     if (!userId) {

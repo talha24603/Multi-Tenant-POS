@@ -1,6 +1,12 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { signOut } from "next-auth/react"
 
 export function CashierHeader() {
+  const handleLogout = () => {
+    signOut({ callbackUrl: "/sign-in" })
+  }
+
   return (
     <div className="flex items-center justify-between mb-4">
       <div>
@@ -13,6 +19,14 @@ export function CashierHeader() {
           <AvatarFallback>CA</AvatarFallback>
         </Avatar>
         <span className="text-sm font-medium">Alex</span>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={handleLogout}
+          className="ml-2"
+        >
+          Logout
+        </Button>
       </div>
     </div>
   )

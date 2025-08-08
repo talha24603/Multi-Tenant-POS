@@ -12,14 +12,12 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if user is an admin (OWNER or superAdmin)
-    if (session.user.role !== "OWNER" && session.user.role !== "superAdmin") {
+    if (session.user.role !== "OWNER" ) {
       return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
     }
 
-    // Build where clause for tenant filtering
-    const whereClause: any = {}
-    if (session.user.role !== "superAdmin" && session.user.tenantId) {
-      whereClause.tenantId = session.user.tenantId
+    if ( !session.user.tenantId) {
+      return NextResponse.json({ error: "Tenant not found" }, { status: 404 })
     }
 
     // Get current date for calculations
@@ -35,7 +33,7 @@ export async function GET(request: NextRequest) {
       
       const monthSales = await prisma.sale.aggregate({
         where: {
-          ...whereClause,
+          tenantId: session.user.tenantId,
           createdAt: {
             gte: startDate,
             lte: endDate

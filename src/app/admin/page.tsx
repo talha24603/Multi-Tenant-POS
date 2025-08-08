@@ -10,7 +10,8 @@ import {
   DollarSign, 
   ArrowUpRight,
   ArrowDownRight,
-  LogOut
+  LogOut,
+  Loader2
 } from "lucide-react"
 import { SalesChart } from "@/components/admin/sales-chart"
 import { RecentSales } from "@/components/admin/recent-sales"
@@ -119,7 +120,10 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loading ? "Loading..." : formatCurrency(stats?.totalRevenue.current || 0)}
+              {loading ? <div className="flex items-center font-semibold">
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <span className="text-sm text-muted-foreground">Loading...</span>
+              </div> : formatCurrency(stats?.totalRevenue.current || 0)}
             </div>
             <p className="text-xs text-muted-foreground flex items-center">
               {stats?.totalRevenue.change !== undefined && (
@@ -143,7 +147,10 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loading ? "Loading..." : `+${stats?.totalSales.current || 0}`}
+              {loading ? <div className="flex items-center font-semibold">
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <span className="text-sm text-muted-foreground">Loading...</span>
+              </div> : `+${stats?.totalSales.current || 0}`}
             </div>
             <p className="text-xs text-muted-foreground flex items-center">
               {stats?.totalSales.change !== undefined && (
@@ -167,7 +174,10 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loading ? "Loading..." : `+${stats?.productsSold.current || 0}`}
+              {loading ? <div className="flex items-center font-semibold">
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <span className="text-sm text-muted-foreground">Loading...</span>
+              </div> : `+${stats?.productsSold.current || 0}`}
             </div>
             <p className="text-xs text-muted-foreground flex items-center">
               {stats?.productsSold.change !== undefined && (
@@ -191,7 +201,10 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {loading ? "Loading..." : `+${stats?.newCustomers.current || 0}`}
+              {loading ? <div className="flex items-center font-semibold">
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <span className="text-sm text-muted-foreground">Loading...</span>
+              </div> : `+${stats?.newCustomers.current || 0}`}
             </div>
             <p className="text-xs text-muted-foreground flex items-center">
               {stats?.newCustomers.change !== undefined && (

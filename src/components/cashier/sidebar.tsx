@@ -3,6 +3,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { ShoppingCart, Clock, LogOut } from "lucide-react"
+import { signOut } from "next-auth/react"
 
 const navigation = [
   { name: "New Sale", href: "/cashier", icon: ShoppingCart },
@@ -11,6 +12,10 @@ const navigation = [
 
 export function CashierSidebar() {
   const pathname = usePathname()
+
+  const handleLogout = () => {
+    signOut({ callbackUrl: "/" })
+  }
 
   return (
     <div className="flex h-full w-20 flex-col bg-white border-r border-gray-200 items-center py-4">
@@ -36,7 +41,10 @@ export function CashierSidebar() {
         })}
       </nav>
       <div className="mt-auto mb-2">
-        <button className="flex flex-col items-center text-gray-400 hover:text-red-600 p-2">
+        <button 
+          className="flex flex-col items-center text-gray-400 hover:text-red-600 p-2 transition-colors"
+          onClick={handleLogout}
+        >
           <LogOut className="h-6 w-6 mb-1" />
           <span className="text-xs">Logout</span>
         </button>

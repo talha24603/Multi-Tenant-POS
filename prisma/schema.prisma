@@ -16,34 +16,34 @@ model User {
   otp              String?
   otpExpiresAt     DateTime?
   provider         String?
+  createdAt        DateTime     @default(now())
   stripeCustomerId String?
   isSuperAdmin     Boolean      @default(false)
-  createdAt        DateTime     @default(now())
-  tenants          TenantUser[]
   Sale             Sale[]
+  tenants          TenantUser[]
 }
 
 model Tenant {
-  id                    String       @id @default(cuid())
-  name                  String
-  status                String       @default("INACTIVE")
-  stripeCustomerId      String?
-  stripeSubscriptionId  String?
-  subscriptionStatus    String?      @default("INACTIVE") // ACTIVE, PAST_DUE, CANCELED, INCOMPLETE
-  subscriptionPlan      String?      // MONTHLY, YEARLY
-  subscriptionEndDate   DateTime?
-  address               String?
-  phone                 String?
-  email                 String?
-  website               String?
-  type                  String?      @default("tenant") // tenant, superAdmin
-  logo                  String?
-  description           String?
-  createdAt             DateTime     @default(now())
-  users                 TenantUser[]
-  products              Product[]
-  Customer              Customer[]
-  Sale                  Sale[]
+  id                   String       @id @default(cuid())
+  name                 String
+  address              String?
+  createdAt            DateTime     @default(now())
+  description          String?
+  email                String?
+  logo                 String?
+  phone                String?
+  status               String       @default("INACTIVE")
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  subscriptionEndDate  DateTime?
+  subscriptionPlan     String?
+  subscriptionStatus   String?      @default("INACTIVE")
+  website              String?
+  type                 String?      @default("tenant")
+  Customer             Customer[]
+  products             Product[]
+  Sale                 Sale[]
+  users                TenantUser[]
 }
 
 model TenantUser {
@@ -52,8 +52,8 @@ model TenantUser {
   userId   String
   tenantId String
   status   String @default("ACTIVE")
-  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Product {
@@ -64,8 +64,13 @@ model Product {
   imageUrl    String?
   description String?
   tenantId    String
+  barcode     String?
+  category    String     @default("General")
+  createdAt   DateTime   @default(now())
   tenant      Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   saleItems   SaleItem[]
+
+  @@index([tenantId, barcode])
 }
 
 model Customer {
@@ -82,14 +87,14 @@ model Customer {
 model Sale {
   id          String     @id @default(cuid())
   total       Float
-  paymentType String // e.g., "Cash", "Card"
+  paymentType String
   createdAt   DateTime   @default(now())
   tenantId    String
-  tenant      Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   userId      String
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   customerId  String?
   customer    Customer?  @relation(fields: [customerId], references: [id])
+  tenant      Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   items       SaleItem[]
 }
 
@@ -99,6 +104,6 @@ model SaleItem {
   productId String
   quantity  Int
   price     Float
-  sale      Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sale      Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
 }
