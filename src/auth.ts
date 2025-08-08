@@ -35,7 +35,7 @@ export const authOptions: NextAuthConfig = {
   ],
 
   secret: process.env.AUTH_SECRET,
-  debug: true,
+  debug: process.env.NODE_ENV === 'development',
   session: { strategy: "jwt" },
   pages: { signIn: "/sign-in" },
 
