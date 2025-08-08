@@ -4,13 +4,24 @@ import GoogleProvider from "next-auth/providers/google"
 import prisma from "./prismaClient"
 import { compare } from "bcryptjs"
 
+// Validate required environment variables
+if (!process.env.AUTH_SECRET) {
+  throw new Error("AUTH_SECRET environment variable is required")
+}
+
+if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
+  console.warn("Google OAuth credentials not found. Google sign-in will be disabled.")
+}
+
 export const authOptions: NextAuthConfig = {
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID as string,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-      allowDangerousEmailAccountLinking: true,
-    }),
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? [
+      GoogleProvider({
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        allowDangerousEmailAccountLinking: true,
+      })
+    ] : []),
     CredentialProvider({
       name: "Credentials",
       credentials: {
@@ -18,17 +29,22 @@ export const authOptions: NextAuthConfig = {
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials: any) => {
-        const user = await prisma.user.findUnique({ where: { email: credentials.email } })
-        if (!user) throw new Error("invalid email or password")
-        const isMatch = await compare(credentials.password, user.password || "")
-        if (!isMatch) throw new Error("incorrect password")
-        if (!user.isVerified) throw new Error("Account not verified. Please verify your email before logging in.")
-        return {  
-          id: user.id,           
-          name: user.name || "", 
-          email: user.email, 
-          isVerified: user.isVerified, 
-          stripeCustomerId: user.stripeCustomerId,
+        try {
+          const user = await prisma.user.findUnique({ where: { email: credentials.email } })
+          if (!user) throw new Error("invalid email or password")
+          const isMatch = await compare(credentials.password, user.password || "")
+          if (!isMatch) throw new Error("incorrect password")
+          if (!user.isVerified) throw new Error("Account not verified. Please verify your email before logging in.")
+          return {  
+            id: user.id,           
+            name: user.name || "", 
+            email: user.email, 
+            isVerified: user.isVerified, 
+            stripeCustomerId: user.stripeCustomerId,
+          }
+        } catch (error) {
+          console.error("Auth error:", error)
+          throw error
         }
       },
     }),
