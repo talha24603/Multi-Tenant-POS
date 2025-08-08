@@ -61,8 +61,8 @@ export const authOptions: NextAuthConfig = {
     }),
   ],
 
-  secret: process.env.AUTH_SECRET || "fallback-secret-for-development",
-  debug: process.env.NODE_ENV === 'development',
+  secret: process.env.AUTH_SECRET,
+  debug: true,
   session: { strategy: "jwt" },
   pages: { signIn: "/sign-in" },
 
