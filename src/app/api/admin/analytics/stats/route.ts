@@ -11,8 +11,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    // Check if user is an admin (OWNER or superAdmin)
-    if (session.user.role !== "OWNER" ) {
+    // Check if user is an admin (OWNER only for tenant-specific analytics)
+    if (session.user.role !== "OWNER") {
       return NextResponse.json({ error: "Insufficient permissions" }, { status: 403 })
     }
 
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     console.log(startOfMonth, endOfMonth, startOfLastMonth, endOfLastMonth);
     
 
-    if ( !session.user.tenantId) {
+    if (!session.user.tenantId) {
       return NextResponse.json({ error: "Tenant not found" }, { status: 404 })
     }
 
