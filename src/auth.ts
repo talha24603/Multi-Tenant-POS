@@ -130,7 +130,6 @@ export const authOptions: NextAuthConfig = {
           }
         }
         return token;
-      
     },
     session: async ({ session, token }) => {
       session.user = {

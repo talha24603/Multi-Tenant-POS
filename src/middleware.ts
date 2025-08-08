@@ -112,7 +112,7 @@ export async function middleware(request: NextRequest) {
 
   // If user has no tenant assigned, redirect to buy tenant page
   // (This only applies to non-super admin users)
-  if (!userTenantId && pathname !== "/success" && pathname !== "/tenant-setup") {
+  if (!userTenantId && pathname !== "/success" && pathname !== "/admin/tenant-setup") {
     return NextResponse.redirect(new URL("/buy-tenant", request.url));
   }
 
@@ -171,7 +171,6 @@ export const config = {
     '/sign-up',
     '/verifyCode/:path*',
     '/success',
-    // '/tenant-setup',
     '/',
   ],
 };

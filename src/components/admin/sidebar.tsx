@@ -43,7 +43,7 @@ export function AdminSidebar() {
   }
 
   return (
-    <div className="flex sticky top-0 h-screen w-64 flex-col bg-white border-r border-gray-200">
+    <div className="flex flex-col sticky top-0 h-screen w-64 bg-white border-r border-gray-200">
       {/* Logo */}
       <div className="flex h-16 items-center justify-center border-b border-gray-200">
         <div className="flex items-center space-x-2">
@@ -81,8 +81,8 @@ export function AdminSidebar() {
         })}
       </nav>
 
-      {/* User Profile */}
-      <div className="border-t border-gray-200 p-4">
+      {/* User Profile - pushed to bottom */}
+      <div className="border-t border-gray-200 p-4 mt-auto">
         <div className="flex items-center space-x-3">
           <Avatar className="h-8 w-8">
             <AvatarImage src="/avatars/admin.png" alt="Admin" />
@@ -109,4 +109,4 @@ export function AdminSidebar() {
       </div>
     </div>
   )
-} 
+}

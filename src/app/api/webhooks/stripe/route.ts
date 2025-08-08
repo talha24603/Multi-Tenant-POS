@@ -54,29 +54,80 @@ export async function POST(request: Request) {
         const customerId = session.customer as string;
         const subscriptionId = session.subscription as string | undefined;
 
+        console.log('🔍 Processing checkout.session.completed:', {
+          userId,
+          customerId,
+          subscriptionId,
+          sessionId: session.id
+        });
+
         if (!userId || !customerId || !subscriptionId) {
-          console.error('Missing data on checkout.session.completed', { userId, customerId, subscriptionId });
+          console.error('❌ Missing data on checkout.session.completed', { 
+            userId, 
+            customerId, 
+            subscriptionId,
+            sessionId: session.id,
+            metadata: session.metadata
+          });
           break;
         }
 
-        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-        const status = subscription.status.toUpperCase();
-        const planInterval = subscription.items.data[0].price.recurring?.interval?.toUpperCase() || 'MONTHLY';
-        const endDate = getSubscriptionEndDate(subscription);
+        try {
+          // Verify user exists
+          const user = await prisma.user.findUnique({
+            where: { id: userId }
+          });
 
-        await prisma.tenant.create({
-          data: {
-            name: `Tenant of ${userId}`,
-            stripeCustomerId: customerId,
-            stripeSubscriptionId: subscriptionId,
-            subscriptionStatus: status,
-            subscriptionPlan: planInterval,
-            subscriptionEndDate: endDate,
-            status: status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE',
-            users: { create: { userId, role: 'OWNER' } }
+          if (!user) {
+            console.error('❌ User not found for tenant creation:', userId);
+            break;
           }
-        });
-        console.log(`✅ Tenant created for user ${userId}`);
+
+          // Check if tenant already exists for this user
+          const existingTenant = await prisma.tenant.findFirst({
+            where: {
+              users: {
+                some: {
+                  userId: userId,
+                  role: 'OWNER'
+                }
+              }
+            }
+          });
+
+          if (existingTenant) {
+            console.log('⚠️ Tenant already exists for user:', userId);
+            break;
+          }
+
+          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          const status = subscription.status.toUpperCase();
+          const planInterval = subscription.items.data[0].price.recurring?.interval?.toUpperCase() || 'MONTHLY';
+          const endDate = getSubscriptionEndDate(subscription);
+
+          const tenant = await prisma.tenant.create({
+            data: {
+              name: `Tenant of ${user.name || user.email}`,
+              stripeCustomerId: customerId,
+              stripeSubscriptionId: subscriptionId,
+              subscriptionStatus: status,
+              subscriptionPlan: planInterval,
+              subscriptionEndDate: endDate,
+              status: status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE',
+              users: { create: { userId, role: 'OWNER' } }
+            }
+          });
+
+          console.log(`✅ Tenant created successfully:`, {
+            tenantId: tenant.id,
+            userId,
+            customerId,
+            subscriptionId,
+            status
+          });
+        } catch (error) {
+          console.error('❌ Error creating tenant:', error);
+        }
         break;
       }
 
