@@ -10,6 +10,9 @@ declare module "next-auth" {
       role?: string | null;
       tenantId?: string | null;
       tenantName?: string | null;
+      tenantStatus?: string | null;
+      subscriptionStatus?: string | null;
+      subscriptionEndDate?: string | null;
       isVerified: boolean;
       stripeCustomerId?: string | null;
       emailVerified?: null;
@@ -22,6 +25,9 @@ declare module "next-auth" {
     role?: string | null;
     tenantId?: string | null;
     tenantName?: string | null;
+    tenantStatus?: string | null;
+    subscriptionStatus?: string | null;
+    subscriptionEndDate?: string | null;
     isVerified: boolean;
     stripeCustomerId?: string | null;
     emailVerified?: null;

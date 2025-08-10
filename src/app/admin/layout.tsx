@@ -1,4 +1,6 @@
 import { AdminSidebar } from "@/components/admin/sidebar"
+import { TenantStatusWarning } from "@/components/TenantStatusWarning"
+import { TenantStatusCheck } from "@/components/TenantStatusCheck"
 
 export default function AdminLayout({
   children,
@@ -6,11 +8,15 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <AdminSidebar />
-      <main className="flex-1 overflow-y-auto">
-        {children}
-      </main>
-    </div>
+    <>
+      <TenantStatusCheck />
+      <div className="flex min-h-screen bg-gray-100">
+        <AdminSidebar />
+        <main className="flex-1 overflow-y-auto">
+          <TenantStatusWarning className="mb-4" />
+          {children}
+        </main>
+      </div>
+    </>
   )
 } 

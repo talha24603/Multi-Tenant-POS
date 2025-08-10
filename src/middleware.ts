@@ -5,6 +5,9 @@ import { getToken } from 'next-auth/jwt';
 interface Token {
   role?: string;
   tenantId?: string;
+  tenantStatus?: string;
+  subscriptionStatus?: string | null;
+  subscriptionEndDate?: string | null;
   isVerified?: boolean;
   exp?: number;
   // ... other user properties
@@ -26,7 +29,9 @@ export async function middleware(request: NextRequest) {
     pathname,
     userRole: token?.role,
     userTenantId: token?.tenantId,
-    isSuperAdmin: token?.role === "superAdmin"
+    tenantStatus: token?.tenantStatus,
+    isSuperAdmin: token?.role === "superAdmin",
+    hasToken: !!token
   });
 
   // Check if token has expired
@@ -35,7 +40,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Define public pages that don't require authentication
-  const publicPages = ["/", "/buy-tenant", "/sign-in", "/sign-up", "/verifyCode", "/success"];
+  const publicPages = ["/", "/buy-tenant", "/sign-in", "/sign-up", "/verifyCode", "/success", "/tenant-inactive"];
 
   // Redirect authenticated users from auth pages
   if (
@@ -47,7 +52,7 @@ export async function middleware(request: NextRequest) {
     const userTenantId = token.tenantId;
     
     if (userRole === "superAdmin") {
-      return NextResponse.redirect(new URL('/admin/super-admin', request.url));
+      return NextResponse.redirect(new URL('/super-admin', request.url));
     } else if (userRole === "OWNER") {
       return NextResponse.redirect(new URL('/admin', request.url));
     } else if (userRole === "MANAGER") {
@@ -92,6 +97,35 @@ export async function middleware(request: NextRequest) {
   // If user is not verified, redirect to verification page
   if (!token.isVerified) {
     return NextResponse.redirect(new URL('/verifyCode', request.url));
+  }
+
+  // Check if tenant is inactive (for non-super admin users)
+  console.log("🔍 Tenant Status Check:", {
+    hasToken: !!token,
+    userRole: token?.role,
+    tenantStatus: token?.tenantStatus,
+    isSuperAdmin: token?.role === "superAdmin",
+    pathname: pathname
+  });
+  
+  // Consider subscription status: if ended/inactive, redirect to inactive page
+  const isSubscriptionInactive = token?.subscriptionStatus === "INACTIVE" || !!(token?.subscriptionEndDate && new Date(token.subscriptionEndDate) < new Date());
+
+  if (
+    token?.role &&
+    token.role !== "superAdmin" &&
+    (token.tenantStatus === "INACTIVE" || isSubscriptionInactive) &&
+    pathname !== "/tenant-inactive"
+  ) {
+    console.log("🚫 User accessing inactive tenant:", {
+      userRole: token.role,
+      tenantId: token.tenantId,
+      tenantStatus: token.tenantStatus,
+      subscriptionStatus: token.subscriptionStatus,
+      subscriptionEndDate: token.subscriptionEndDate,
+      pathname: pathname
+    });
+    return NextResponse.redirect(new URL('/tenant-inactive', request.url));
   }
 
   const userRole = token.role;
@@ -171,6 +205,9 @@ export const config = {
     '/sign-up',
     '/verifyCode/:path*',
     '/success',
+    '/tenant-inactive',
+    '/api/debug/:path*',
+    '/test-token',
     '/',
   ],
 };
