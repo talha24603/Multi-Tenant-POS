@@ -62,6 +62,33 @@ export async function searchProducts(query: string, tenantId: string): Promise<P
   }
 }
 
+// Fetch product by exact barcode
+export async function getProductByBarcode(barcode: string, tenantId: string): Promise<Product | null> {
+  try {
+    const params = new URLSearchParams({
+      barcode,
+      tenantId,
+    })
+
+    const response = await fetch(`/api/cashier/products/by-barcode?${params.toString()}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const data = await response.json()
+    return data.product
+  } catch (error) {
+    console.error('Error fetching product by barcode:', error)
+    throw error
+  }
+}
+
 // Customer search
 export async function searchCustomers(query: string, tenantId: string): Promise<Customer[]> {
   try {

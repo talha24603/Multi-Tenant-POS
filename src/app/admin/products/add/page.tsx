@@ -156,12 +156,11 @@ export default function AddProductPage() {
             onClick={handleCancel}
             className="flex items-center space-x-2"
           >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Back to Products</span>
+            
           </Button>
-          <div>
+          <div className="flex flex-col items-start justify-start">
             <h2 className="text-3xl font-bold tracking-tight">Add New Product</h2>
-            <p className="text-muted-foreground">Create a new product for your inventory</p>
+            {/* <p className="text-muted-foreground">Create a new product for your inventory</p> */}
           </div>
         </div>
       </div>
@@ -206,8 +205,8 @@ export default function AddProductPage() {
                 {/* Price */}
                 <div className="space-y-2">
                   <Label htmlFor="price">Price *</Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-2.5 text-muted-foreground">$</span>
+                  <div >
+                    {/* <span className="absolute left-3 top-1.8 text-muted-foreground">$</span> */}
                     <Input
                       id="price"
                       type="number"
@@ -215,8 +214,8 @@ export default function AddProductPage() {
                       min="0"
                       value={formData.price}
                       onChange={(e) => handleInputChange('price', e.target.value)}
-                      placeholder="0.00"
-                      className={`pl-8 ${errors.price ? 'border-red-500' : ''}`}
+                      placeholder="$ 0.00"
+                      className={` ${errors.price ? 'border-red-500' : ''}`}
                     />
                   </div>
                   {errors.price && (

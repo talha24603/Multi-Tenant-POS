@@ -3,9 +3,9 @@
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Search, Barcode, Loader2 } from "lucide-react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useCashier } from "@/context/cashier-context"
-import { searchProducts, Product } from "@/lib/api/cashier"
+import { searchProducts, Product, getProductByBarcode } from "@/lib/api/cashier"
 import { useDebounce } from "@/hooks/useDebounce"
 
 export function ProductSearch() {
@@ -15,6 +15,9 @@ export function ProductSearch() {
   const [showResults, setShowResults] = useState(false)
   const debouncedQuery = useDebounce(query, 300)
   const { addToCart, state } = useCashier()
+  const scanTimerRef = useRef<number | null>(null)
+  const [inputStartTs, setInputStartTs] = useState<number | null>(null)
+  const [lastInputTs, setLastInputTs] = useState<number>(0)
 
   useEffect(() => {
     if (debouncedQuery.length > 0 && state.tenantId) {
@@ -36,6 +39,58 @@ export function ProductSearch() {
     }
   }, [debouncedQuery, state.tenantId])
 
+  // Detect fast barcode scans and auto-add without requiring Enter
+  useEffect(() => {
+    if (!state.tenantId) return
+    if (!query) {
+      setInputStartTs(null)
+      setLastInputTs(0)
+      return
+    }
+
+    // schedule a short timeout; if no new input within this window, evaluate as a potential scan
+    if (scanTimerRef.current) window.clearTimeout(scanTimerRef.current)
+    scanTimerRef.current = window.setTimeout(async () => {
+      const trimmed = query.trim()
+      if (!trimmed) return
+      const durationMs = inputStartTs ? (lastInputTs - inputStartTs) : Number.MAX_SAFE_INTEGER
+      const looksLikeBarcode = trimmed.length >= 6 && !/\s/.test(trimmed)
+      const veryFastEntry = durationMs <= 120 // likely a scanner
+
+      if (looksLikeBarcode && veryFastEntry) {
+        try {
+          const byBarcode = await getProductByBarcode(trimmed, state.tenantId!)
+          if (byBarcode) {
+            // add and reset UI
+            const cartItem = {
+              id: `${byBarcode.id}-${Date.now()}`,
+              productId: byBarcode.id,
+              name: byBarcode.name,
+              price: byBarcode.price,
+              quantity: 1,
+              stock: byBarcode.stock,
+              barcode: byBarcode.barcode,
+              category: byBarcode.category,
+              imageUrl: byBarcode.imageUrl,
+            }
+            addToCart(cartItem)
+            setQuery("")
+            setShowResults(false)
+            setProducts([])
+            setInputStartTs(null)
+            setLastInputTs(0)
+          }
+        } catch (err) {
+          console.error('Barcode auto-add failed:', err)
+        }
+      }
+    }, 140)
+
+    return () => {
+      if (scanTimerRef.current) window.clearTimeout(scanTimerRef.current)
+    }
+  }, [query, state.tenantId, inputStartTs, lastInputTs, addToCart])
+
   const handleProductSelect = (product: Product) => {
     const cartItem = {
       id: `${product.id}-${Date.now()}`, // Unique ID for cart item
@@ -54,9 +109,25 @@ export function ProductSearch() {
     setShowResults(false)
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && products.length > 0) {
-      handleProductSelect(products[0])
+  const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      const trimmed = query.trim()
+      if (!trimmed || !state.tenantId) return
+      try {
+        // Try exact barcode match first for scanner input
+        const byBarcode = await getProductByBarcode(trimmed, state.tenantId)
+        if (byBarcode) {
+          handleProductSelect(byBarcode)
+          return
+        }
+        // Fallback: add first search result if present
+        if (products.length > 0) {
+          handleProductSelect(products[0])
+        }
+      } catch (err) {
+        console.error('Barcode lookup failed:', err)
+      }
     }
   }
 
@@ -68,19 +139,30 @@ export function ProductSearch() {
             placeholder="Search or scan product..." 
             className="flex-1"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onChange={(e) => {
+              const val = e.target.value
+              const now = Date.now()
+              // mark start of a new burst when field was empty before
+              if (!query && val) {
+                setInputStartTs(now)
+              }
+              setLastInputTs(now)
+              setQuery(val)
+            }}
+            onKeyDown={handleKeyDown}
             onFocus={() => setShowResults(true)}
           />
-          {isLoading && (
-            <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
-          )}
+          {/* Loader moved into the Search button to ensure right-side placement */}
         </div>
-        <Button variant="outline" size="icon" title="Scan Barcode">
+        {/* <Button variant="outline" size="icon" title="Scan Barcode">
           <Barcode className="h-5 w-5" />
-        </Button>
-        <Button variant="default" size="icon" title="Search">
-          <Search className="h-5 w-5" />
+        </Button> */}
+        <Button variant="default" size="icon" title="Search" disabled={isLoading}>
+          {isLoading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <Search className="h-5 w-5" />
+          )}
         </Button>
       </div>
       

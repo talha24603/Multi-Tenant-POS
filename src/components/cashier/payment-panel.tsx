@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { CreditCard, DollarSign, CheckCircle, User, Loader2, Calculator } from "lucide-react"
 import { useCashier } from "@/context/cashier-context"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { searchCustomers, createCustomer, processSale, Customer } from "@/lib/api/cashier"
 import { useDebounce } from "@/hooks/useDebounce"
 import { Receipt } from "./receipt"
@@ -24,16 +24,22 @@ export function PaymentPanel() {
   const [customers, setCustomers] = useState<Customer[]>([])
   const [customerQuery, setCustomerQuery] = useState("")
   const [showCustomerSearch, setShowCustomerSearch] = useState(false)
+  const [suppressNextSearch, setSuppressNextSearch] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [showCustomerForm, setShowCustomerForm] = useState(false)
   const [newCustomer, setNewCustomer] = useState({ name: "", email: "", phone: "" })
   const [isCreatingCustomer, setIsCreatingCustomer] = useState(false)
   const [showReceipt, setShowReceipt] = useState(false)
   const [lastSaleId, setLastSaleId] = useState("")
+  const customerSearchRef = useRef<HTMLDivElement | null>(null)
   
   const debouncedCustomerQuery = useDebounce(customerQuery, 300)
 
   useEffect(() => {
+    if (suppressNextSearch) {
+      setSuppressNextSearch(false)
+      return
+    }
     if (debouncedCustomerQuery.length > 0 && state.tenantId) {
       searchCustomers(debouncedCustomerQuery, state.tenantId)
         .then((results) => {
@@ -48,6 +54,23 @@ export function PaymentPanel() {
       setShowCustomerSearch(false)
     }
   }, [debouncedCustomerQuery, state.tenantId])
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        customerSearchRef.current &&
+        event.target instanceof Node &&
+        !customerSearchRef.current.contains(event.target)
+      ) {
+        setShowCustomerSearch(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
 
   // Calculate change whenever amount given or cart changes
   useEffect(() => {
@@ -64,6 +87,8 @@ export function PaymentPanel() {
     setCustomer(customer)
     setCustomerQuery(customer.name)
     setShowCustomerSearch(false)
+    // prevent the dropdown from reopening due to query change
+    setSuppressNextSearch(true)
   }
 
   const handleCreateCustomer = async () => {
@@ -152,7 +177,7 @@ export function PaymentPanel() {
             <User className="h-4 w-4" />
             <span className="text-sm font-medium">Customer</span>
           </div>
-          <div className="relative">
+          <div className="relative" ref={customerSearchRef}>
             <Input
               placeholder="Search customer..."
               value={customerQuery}
