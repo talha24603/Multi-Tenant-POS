@@ -8,9 +8,15 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { signIn, useSession } from "next-auth/react";
+import { signIn, signOut, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import signInWithGoogle from "../sign-up/signUpWithGoogle"
+import { Roboto } from "next/font/google"
+
+const roboto = Roboto({
+  weight: ["400", "700"],
+  subsets: ["latin"],
+})
 
 export default function SignInPage() {
   const router = useRouter();
@@ -18,7 +24,9 @@ export default function SignInPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { data: session, status } = useSession()
+  const session = useSession();
+  const user = session.data?.user || {};
+  const status = session?.status || "loading";
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -116,9 +124,9 @@ export default function SignInPage() {
       return;
     }
     
-    if (status === "authenticated" && session?.user) {
-      const role = session.user.role;
-      const tenantId = session.user.tenantId;
+    if (status === "authenticated" && session?.data?.user) {
+      const role = session.data.user.role;
+      const tenantId = session.data.user.tenantId;
       
       console.log("User role:", role);
       console.log("User tenantId:", tenantId);
@@ -135,8 +143,8 @@ export default function SignInPage() {
   // If user is already authenticated, show loading
   if (status === "authenticated") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
-        <Card className="w-full max-w-md shadow-xl">
+      <div className="min-h-screen flex flex-col bg-white">
+        <Card className="w-full max-w-md shadow-none border-none">
           <CardContent className="flex flex-col items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
             <p className="text-muted-foreground">Redirecting to your dashboard...</p>
@@ -147,11 +155,35 @@ export default function SignInPage() {
   }
   
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
-      <Card className="w-full max-w-md shadow-xl">
-        <CardHeader className="flex flex-col items-center gap-2">
-          <Image src="/logo.svg" alt="Logo" width={48} height={48} />
-          <CardTitle className="text-2xl font-bold">Sign in to POS</CardTitle>
+    <div className="min-h-screen flex flex-col items-center  bg-white">
+      <nav className="w-full px-4 sm:px-8 py-4 flex items-center justify-between  bg-background/90 backdrop-blur-md sticky top-0 z-20 shadow-sm">
+        <div className="flex items-center gap-3">
+          <Image src="/2.png" alt="SIDZ" width={100} height={40} />
+          {/* <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">SIDDZ</span> */}
+        </div>
+        <div className="hidden md:flex items-center gap-6 text-sm font-medium">
+          <a href="#features" className="hover:text-primary transition-colors duration-200">Features</a>
+          <a href="#pricing" className="hover:text-primary transition-colors duration-200">Pricing</a>
+          <a href="#testimonials" className="hover:text-primary transition-colors duration-200">Reviews</a>
+          	{/* {user ?(
+            <button
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="bg-destructive text-destructive-foreground px-4 py-2 rounded-lg shadow-lg hover:bg-destructive/90 transition-all duration-200 hover:scale-105"
+            >
+              Logout
+            </button>
+          ) : ( */}
+            <>
+              <a href="/sign-in" className="hover:text-primary transition-colors duration-200">Sign In</a>
+              <a href="/sign-up" className="bg-primary text-primary-foreground px-6 py-2 rounded-lg shadow-lg hover:bg-primary/90 transition-all duration-200 hover:scale-105 hover:shadow-xl">Sign Up</a>
+            </>
+          {/* )} */}
+        </div>
+      </nav>
+      <Card className="w-full max-w-md shadow-none border-none">
+        <CardHeader className="flex flex-col items-center ">
+          {/* <Image src="/2.png" alt="Logo" width={48} height={100} /> */}
+          <CardTitle className="font-sans text-3xl font-bold mb-10">Sign in to SIDZ</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
@@ -197,7 +229,7 @@ export default function SignInPage() {
             <FcGoogle className="h-5 w-5" />
             {googleLoading ? "Signing in with Google..." : "Sign in with Google"}
           </Button>
-          <div className="text-center text-sm text-muted-foreground mt-2">
+          <div className="text-center text-sm text-muted-foreground mt-2 mb-10">
             Don't have an account?{' '}
             <Link href="/sign-up" className="text-blue-600 hover:underline">Sign up</Link>
           </div>

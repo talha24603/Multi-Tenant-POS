@@ -156,6 +156,7 @@ interface CashierContextType {
 const CashierContext = createContext<CashierContextType | undefined>(undefined)
 
 export function CashierProvider({ children }: { children: ReactNode }) {
+  
   const [state, dispatch] = useReducer(cashierReducer, initialState)
 
   const addToCart = useCallback((item: CartItem) => {
