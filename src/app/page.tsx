@@ -55,7 +55,7 @@ export default function Home() {
           </div> */}
           
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-            <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+            <span>
               Supercharge
             </span>
             <br />
@@ -67,7 +67,7 @@ export default function Home() {
             <span className="font-semibold text-foreground"> Point of Sale platform</span>.
           </p>
           
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+          {/* <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
         <a
           href="/sign-up"
               className="group inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-xl font-semibold text-lg shadow-2xl hover:bg-primary/90 transition-all duration-300 hover:scale-105 hover:shadow-primary/25"
@@ -81,9 +81,9 @@ export default function Home() {
             >
               Watch Demo
             </a>
-          </div>
+          </div> */}
           
-          {/* Trust indicators */}
+          {/* Trust indicators
           <div className="flex items-center justify-center gap-8 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <CheckCircle className="w-4 h-4 text-green-500" />
@@ -97,7 +97,7 @@ export default function Home() {
               <CheckCircle className="w-4 h-4 text-green-500" />
               <span>Cancel anytime</span>
             </div>
-          </div>
+          </div> */}
         </div>
       </header>
 
@@ -234,7 +234,7 @@ export default function Home() {
       </section>
 
       {/* Enhanced Pricing Section */}
-      <section id="pricing" className="py-20 bg-background">
+      {/* <section id="pricing" className="py-20 bg-background">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold mb-4">Simple, Transparent Pricing</h2>
           <p className="text-xl text-muted-foreground mb-12">
@@ -302,10 +302,10 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Banner */}
-      <section className="py-20 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground">
+      {/* <section className="py-20 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-4xl font-bold mb-4">Ready to Transform Your Business?</h2>
           <p className="text-xl mb-8 opacity-90">
@@ -327,7 +327,7 @@ export default function Home() {
             </a>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Enhanced Footer */}
       <footer className="py-12 border-t border-border bg-background/50">
