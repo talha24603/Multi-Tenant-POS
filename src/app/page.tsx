@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 import { ArrowRight, CheckCircle, Star, TrendingUp, Users, Shield, BarChart3, ShoppingCart, Smartphone } from "lucide-react";
+import Link from "next/link";
 
 export default function Home() {
 
@@ -13,7 +14,9 @@ export default function Home() {
       {/* Enhanced Navbar */}
       <nav className="w-full px-4 sm:px-8 py-4 flex items-center justify-between border-border/50 bg-background/90 backdrop-blur-md sticky top-0 z-20 shadow-sm">
         <div className="flex items-center gap-3">
+          <Link href="/">
           <Image src="/2.png" alt="SIDZ" width={100} height={40} />
+          </Link>
           {/* <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">SIDDZ</span> */}
         </div>
         <div className="hidden md:flex items-center gap-6 text-sm font-medium">
@@ -46,10 +49,10 @@ export default function Home() {
         
         {/* Main hero content */}
         <div className="relative z-10">
-          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6 border border-primary/20">
+          {/* <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6 border border-primary/20">
             <Star className="w-4 h-4 fill-primary" />
             Trusted by 10,000+ businesses worldwide
-          </div>
+          </div> */}
           
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
             <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">

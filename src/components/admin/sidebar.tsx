@@ -26,11 +26,11 @@ const navigation = [
   { name: "Products", href: "/admin/products", icon: Package },
   { name: "Customers", href: "/admin/customers", icon: Users },
   { name: "Sales", href: "/admin/sales", icon: ShoppingCart },
-  { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-   { name: "Reports", href: "/admin/reports", icon: FileText },
+  // { name: "Analytics", href: "/admin/analytics", icon: BarChart3 },
+  //  { name: "Reports", href: "/admin/reports", icon: FileText },
   // { name: "Tenants", href: "/admin/tenants", icon: Store },
   { name: "Users", href: "/admin/users", icon: UserCheck },
-  { name: "Settings", href: "/admin/settings", icon: Settings },
+  // { name: "Settings", href: "/admin/settings", icon: Settings },
 ]
 
 export function AdminSidebar() {

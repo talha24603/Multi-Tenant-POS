@@ -158,13 +158,15 @@ export default function SignInPage() {
     <div className="min-h-screen flex flex-col items-center  bg-white">
       <nav className="w-full px-4 sm:px-8 py-4 flex items-center justify-between  bg-background/90 backdrop-blur-md sticky top-0 z-20 shadow-sm">
         <div className="flex items-center gap-3">
+          <Link href="/">
           <Image src="/2.png" alt="SIDZ" width={100} height={40} />
+          </Link>
           {/* <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">SIDDZ</span> */}
         </div>
         <div className="hidden md:flex items-center gap-6 text-sm font-medium">
-          <a href="#features" className="hover:text-primary transition-colors duration-200">Features</a>
-          <a href="#pricing" className="hover:text-primary transition-colors duration-200">Pricing</a>
-          <a href="#testimonials" className="hover:text-primary transition-colors duration-200">Reviews</a>
+        <a href="/features" className="hover:text-primary transition-colors duration-200">Features</a>
+          <a href="/buy-tenant" className="hover:text-primary transition-colors duration-200">Pricing</a>
+          <a href="/reviews" className="hover:text-primary transition-colors duration-200">Reviews</a>
           	{/* {user ?(
             <button
               onClick={() => signOut({ callbackUrl: "/" })}
