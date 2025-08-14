@@ -82,10 +82,6 @@ export default function BuyTenantPage() {
       <div className="flex flex-col items-center justify-center px-4 py-12 flex-1">
         <div className="w-full max-w-4xl bg-card shadow-lg rounded-xl p-8 border border-border">
           <div className="text-center mb-6">
-            <div className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-medium mb-4 border border-green-200">
-              <Star className="w-4 h-4 fill-green-600" />
-              14-Day Free Trial - No Credit Card Required
-            </div>
             <h1 className="text-3xl font-bold mb-2">Create Your Business Tenant</h1>
             {status === "authenticated" ? (
               <p className="text-muted-foreground mb-2">
@@ -98,7 +94,7 @@ export default function BuyTenantPage() {
               </div>
             )}
             <p className="text-muted-foreground">
-              Set up a new tenant to manage your business, sales, and team. Start with a 14-day free trial and cancel anytime.
+              Set up a new tenant to manage your business, sales, and team. Choose a plan and get started instantly.
             </p>
           </div>
 

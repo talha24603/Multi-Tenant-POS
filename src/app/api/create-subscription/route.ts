@@ -42,32 +42,18 @@ export async function POST(request: Request) {
       });
     }
 
-    // Create a Stripe Checkout Session with 14-day trial
+    // Create a Stripe Checkout Session
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
       metadata: { userId },
-      subscription_data: {
-        trial_period_days: 14, // 14-day free trial
-        metadata: {
-          userId,
-          planType: plan,
-          trial_days: '14',
-        },
-      },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/cancel`,
-      billing_address_collection: 'required',
-      allow_promotion_codes: true,
     });
 
-    return NextResponse.json({ 
-      sessionId: checkoutSession.id,
-      trialDays: 14,
-      planType: plan 
-    });
+    return NextResponse.json({ sessionId: checkoutSession.id });
   } catch (error: any) {
     console.error('Error creating subscription:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
