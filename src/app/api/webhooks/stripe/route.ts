@@ -2,24 +2,9 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import prisma from '@/prismaClient';
 
-export const config = { api: { bodyParser: false } };
-
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-06-30.basil',
 });
-
-// Read raw body for signature verification
-async function buffer(readable: ReadableStream<Uint8Array>): Promise<Buffer> {
-  const chunks: Uint8Array[] = [];
-  const reader = readable.getReader();
-  let done = false;
-  while (!done) {
-    const { value, done: d } = await reader.read();
-    if (value) chunks.push(value);
-    done = d;
-  }
-  return Buffer.concat(chunks);
-}
 
 // Helper function to safely get subscription end date
 function getSubscriptionEndDate(subscription: Stripe.Subscription): Date | null {
@@ -35,7 +20,8 @@ export async function POST(request: Request) {
   let event: Stripe.Event;
 
   try {
-    const body = await buffer(request.body as any);
+    // IMPORTANT: use the raw text body so Stripe can verify the signature
+    const body = await request.text();
     event = stripe.webhooks.constructEvent(
       body,
       sig,
@@ -104,16 +90,18 @@ export async function POST(request: Request) {
           const status = subscription.status.toUpperCase();
           const planInterval = subscription.items.data[0].price.recurring?.interval?.toUpperCase() || 'MONTHLY';
           const endDate = getSubscriptionEndDate(subscription);
+          const isActive = ['ACTIVE', 'TRIALING'].includes(status);
 
           const tenant = await prisma.tenant.create({
             data: {
               name: `Tenant of ${user.name || user.email}`,
               stripeCustomerId: customerId,
               stripeSubscriptionId: subscriptionId,
-              subscriptionStatus: status,
+              // Mark app-level subscription as ACTIVE once checkout is completed
+              subscriptionStatus: 'ACTIVE',
               subscriptionPlan: planInterval,
               subscriptionEndDate: endDate,
-              status: status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE',
+              status: isActive ? 'ACTIVE' : 'INACTIVE',
               users: { create: { userId, role: 'OWNER' } }
             }
           });
@@ -148,15 +136,17 @@ export async function POST(request: Request) {
         const status = subscription.status.toUpperCase();
         const planInterval = subscription.items.data[0].price.recurring?.interval?.toUpperCase() || 'MONTHLY';
         const endDate = getSubscriptionEndDate(subscription);
+        const isActive = ['ACTIVE', 'TRIALING'].includes(status);
 
         // Update existing tenant
         await prisma.tenant.updateMany({
           where: { stripeCustomerId: customerId },
           data: {
-            subscriptionStatus: status,
+            // On successful invoice payment, ensure subscriptionStatus is ACTIVE
+            subscriptionStatus: 'ACTIVE',
             subscriptionPlan: planInterval,
             subscriptionEndDate: endDate,
-            status: status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE'
+            status: isActive ? 'ACTIVE' : 'INACTIVE'
           }
         });
         console.log(`🔄 Tenant updated for subscription ${subscriptionId}`);

@@ -33,3 +33,19 @@ declare module "next-auth" {
     emailVerified?: null;
   }
 }
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    id?: string;
+    name?: string | null;
+    email?: string | null;
+    role?: string | null;
+    tenantId?: string | null;
+    tenantName?: string | null;
+    tenantStatus?: string | null;
+    subscriptionStatus?: string | null;
+    subscriptionEndDate?: string | null;
+    isVerified?: boolean;
+    stripeCustomerId?: string | null;
+  }
+}

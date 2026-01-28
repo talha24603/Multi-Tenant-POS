@@ -86,119 +86,81 @@ export const authOptions: NextAuthConfig = {
       return true  // allow credentials sign-in
     },
     async jwt({ token, user }) {
-      // Always fetch fresh user data to get latest tenant status
-      if (token?.email) {
+      // Seed token with known values on initial sign-in. Some providers/flows
+      // may not populate token.email on the first pass.
+      if (user) {
+        token.id = (user as any).id ?? token.id;
+        token.name = user.name ?? token.name;
+        token.email = user.email ?? token.email;
+      }
+
+      // Always fetch fresh user data (role/tenant/subscription can change).
+      // Prefer email; fall back to token.sub (user id) when email is missing.
+      const lookup = token.email
+        ? ({ email: token.email } as const)
+        : token.sub
+          ? ({ id: token.sub } as const)
+          : null;
+
+      if (lookup) {
         const dbUser = await prisma.user.findUnique({
-          where: { email: token.email },
-          include: { 
+          where: lookup as any,
+          include: {
             tenants: {
               include: {
-                tenant: true
-              }
-            }
+                tenant: true,
+              },
+            },
           },
         });
-    
+
         if (dbUser) {
           token.id = dbUser.id;
           token.name = dbUser.name;
           token.email = dbUser.email;
           token.isVerified = dbUser.isVerified;
           token.stripeCustomerId = dbUser.stripeCustomerId;
-    
+
           // Check if user is superAdmin (temporary workaround until Prisma client is regenerated)
           const isSuperAdmin = dbUser.email === "superadmin@gmail.com";
-          
+
           console.log("🔍 Auth Debug:", {
             email: dbUser.email,
             isSuperAdmin,
-            tenants: dbUser.tenants.length
+            tenants: dbUser.tenants.length,
           });
-          
+
           if (isSuperAdmin) {
             token.role = "superAdmin";
             token.tenantId = null;
             token.tenantName = null;
             token.tenantStatus = null;
-            token.subscriptionStatus = null as any;
-            token.subscriptionEndDate = null as any;
+            token.subscriptionStatus = null;
+            token.subscriptionEndDate = null;
             console.log("✅ Setting superAdmin role for:", dbUser.email);
           } else {
             // If user has multiple tenants, pick the first or let user choose later
             const tenantUser = dbUser.tenants[0];
-            token.role = tenantUser?.role || null;
-            token.tenantId = tenantUser?.tenantId || null;
-            token.tenantName = tenantUser?.tenant?.name || null;
-            token.tenantStatus = tenantUser?.tenant?.status || null;
-            token.subscriptionStatus = tenantUser?.tenant?.subscriptionStatus || null;
+            token.role = tenantUser?.role ?? null;
+            token.tenantId = tenantUser?.tenantId ?? null;
+            token.tenantName = tenantUser?.tenant?.name ?? null;
+            token.tenantStatus = tenantUser?.tenant?.status ?? null;
+            token.subscriptionStatus = tenantUser?.tenant?.subscriptionStatus ?? null;
             token.subscriptionEndDate = tenantUser?.tenant?.subscriptionEndDate
               ? (tenantUser.tenant.subscriptionEndDate as Date).toISOString()
               : null;
-            
+
             console.log("🔍 Tenant Status Debug:", {
               email: dbUser.email,
               tenantId: token.tenantId,
               tenantName: token.tenantName,
               tenantStatus: token.tenantStatus,
-              role: token.role
+              role: token.role,
             });
           }
         }
       }
-      
-      // Initial sign-in: `user` is present
-      if (user) {
-        const dbUser = await prisma.user.findUnique({
-          where: { email: user.email! },
-          include: { 
-            tenants: {
-              include: {
-                tenant: true
-              }
-            }
-          },
-        });
-    
-        if (dbUser) {
-          token.id = dbUser.id;
-          token.name = dbUser.name;
-          token.email = dbUser.email;
-          token.isVerified = dbUser.isVerified;
-          token.stripeCustomerId = dbUser.stripeCustomerId;
-    
-          // Check if user is superAdmin (temporary workaround until Prisma client is regenerated)
-          const isSuperAdmin = dbUser.email === "superadmin@gmail.com";
-          
-          if (isSuperAdmin) {
-            token.role = "superAdmin";
-            token.tenantId = null;
-            token.tenantName = null;
-            token.tenantStatus = null;
-            token.subscriptionStatus = null as any;
-            token.subscriptionEndDate = null as any;
-            console.log("✅ Setting superAdmin role for:", dbUser.email);
-          } else {
-            // If user has multiple tenants, pick the first or let user choose later
-            const tenantUser = dbUser.tenants[0];
-            token.role = tenantUser?.role || null;
-            token.tenantId = tenantUser?.tenantId || null;
-            token.tenantName = tenantUser?.tenant?.name || null;
-            token.tenantStatus = tenantUser?.tenant?.status || null;
-            token.subscriptionStatus = tenantUser?.tenant?.subscriptionStatus || null;
-            token.subscriptionEndDate = tenantUser?.tenant?.subscriptionEndDate
-              ? (tenantUser.tenant.subscriptionEndDate as Date).toISOString()
-              : null;
-            
-            console.log("🔍 Tenant Status Debug:", {
-              email: dbUser.email,
-              tenantId: token.tenantId,
-              tenantName: token.tenantName,
-              tenantStatus: token.tenantStatus,
-              role: token.role
-            });
-          }
-        }
-      }
+
       return token;
     },
     session: async ({ session, token }) => {
@@ -206,15 +168,15 @@ export const authOptions: NextAuthConfig = {
         id: token.id as string,
         name: token.name as string,
         email: token.email as string,
-        role: token.role as string,
-        tenantId: token.tenantId as string,
-        tenantName: token.tenantName as string,
-        tenantStatus: token.tenantStatus as string,
+        role: (token.role as string | null | undefined) ?? null,
+        tenantId: (token.tenantId as string | null | undefined) ?? null,
+        tenantName: (token.tenantName as string | null | undefined) ?? null,
+        tenantStatus: (token.tenantStatus as string | null | undefined) ?? null,
         isVerified: token.isVerified as boolean,  
         stripeCustomerId: token.stripeCustomerId as string | null,
         emailVerified: null,
-        subscriptionStatus: token.subscriptionStatus as string | null,
-        subscriptionEndDate: token.subscriptionEndDate as string | null,
+        subscriptionStatus: (token.subscriptionStatus as string | null | undefined) ?? null,
+        subscriptionEndDate: (token.subscriptionEndDate as string | null | undefined) ?? null,
       }
       
       return session

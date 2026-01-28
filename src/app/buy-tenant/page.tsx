@@ -13,10 +13,14 @@ const stripePromise = loadStripe(
 );
 
 export default function BuyTenantPage() {
+  
+ 
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly" | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { data: session, status } = useSession();
+  const user = session?.user;
+  console.log("User", user);
 
   const handlePlanSelect = (plan: "monthly" | "yearly") => {
     setSelectedPlan(plan);
@@ -40,7 +44,7 @@ export default function BuyTenantPage() {
         body: JSON.stringify({ plan: selectedPlan }),
       });
       const { sessionId } = await res.json();
-
+      console.log("SessionId", sessionId);
       const stripe = await stripePromise;
       if (!stripe) throw new Error("Stripe.js failed to load");
 
