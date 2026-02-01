@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 
 interface SessionDetails {
   status: string;
@@ -15,9 +16,11 @@ function SuccessPageContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
   const router = useRouter();
+  const { status: authStatus, update } = useSession();
   const [loading, setLoading] = useState(true);
   const [details, setDetails] = useState<SessionDetails | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [syncingAccess, setSyncingAccess] = useState(false);
 
   useEffect(() => {
     if (!sessionId) {
@@ -46,6 +49,43 @@ function SuccessPageContent() {
 
     fetchSession();
   }, [sessionId]);
+
+  // Refresh NextAuth JWT/session claims after webhook updates DB.
+  // Without this, middleware may keep using stale INACTIVE values.
+  useEffect(() => {
+    let cancelled = false;
+
+    async function syncSessionFromDb() {
+      if (authStatus !== 'authenticated') return;
+      if (typeof update !== 'function') return;
+
+      setSyncingAccess(true);
+      try {
+        // Retry a few times to avoid race with Stripe webhook processing.
+        for (let attempt = 0; attempt < 6; attempt++) {
+          if (cancelled) return;
+          await update();
+
+          const res = await fetch('/api/tenant/status');
+          if (res.ok) {
+            const data = await res.json();
+            if (data?.isActive) {
+              return;
+            }
+          }
+
+          await new Promise((r) => setTimeout(r, 1000));
+        }
+      } finally {
+        if (!cancelled) setSyncingAccess(false);
+      }
+    }
+
+    syncSessionFromDb();
+    return () => {
+      cancelled = true;
+    };
+  }, [authStatus, update]);
 
   if (loading) {
     return <div className="p-8 text-center">Loading...</div>;
@@ -97,16 +137,24 @@ function SuccessPageContent() {
           </div>
         </div>
       )}
+
+      {syncingAccess && (
+        <div className="mb-6 w-full max-w-md text-center text-sm text-muted-foreground">
+          Finalizing your access… this can take a few seconds.
+        </div>
+      )}
       
       <div className="space-y-4 w-full max-w-md">
         <button
           onClick={() => router.push('/admin/tenant-setup')}
+          disabled={syncingAccess}
           className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition"
         >
           Complete Tenant Setup
         </button>
         <button
           onClick={() => router.push('/admin')}
+          disabled={syncingAccess}
           className="w-full px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/90 transition"
         >
           Go to Dashboard

@@ -2,7 +2,8 @@
 import { useSession, signOut } from "next-auth/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, RefreshCw, LogOut } from "lucide-react";
+import { AlertTriangle, RefreshCw, LogOut, ShoppingCart } from "lucide-react";
+import Link from "next/link";
 
 export default function TenantInactivePage() {
   const { data: session } = useSession();
@@ -42,13 +43,15 @@ export default function TenantInactivePage() {
           </div>
           
           <div className="flex flex-col gap-2">
-            <Button onClick={handleRefresh} variant="outline" className="w-full">
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Refresh Page
-            </Button>
+            <Link href="/buy-tenant">
+              <Button variant="outline" className="w-full">
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                Buy New Subscription
+              </Button>
+            </Link>
             <Button onClick={handleSignOut} variant="destructive" className="w-full">
               <LogOut className="mr-2 h-4 w-4" />
-              Sign Out
+              Logout
             </Button>
           </div>
           

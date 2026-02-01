@@ -50,6 +50,10 @@ export async function POST(request: Request) {
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
       metadata: { userId },
+      // Ensure subscription/invoice events can be linked back to the user
+      subscription_data: {
+        metadata: { userId },
+      },
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/cancel`,
     });

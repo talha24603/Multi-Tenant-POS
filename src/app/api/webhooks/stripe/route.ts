@@ -81,38 +81,56 @@ export async function POST(request: Request) {
             }
           });
 
-          if (existingTenant) {
-            console.log('⚠️ Tenant already exists for user:', userId);
-            break;
-          }
-
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);
           const status = subscription.status.toUpperCase();
           const planInterval = subscription.items.data[0].price.recurring?.interval?.toUpperCase() || 'MONTHLY';
           const endDate = getSubscriptionEndDate(subscription);
           const isActive = ['ACTIVE', 'TRIALING'].includes(status);
 
-          const tenant = await prisma.tenant.create({
-            data: {
-              name: `Tenant of ${user.name || user.email}`,
-              stripeCustomerId: customerId,
-              stripeSubscriptionId: subscriptionId,
-              // Mark app-level subscription as ACTIVE once checkout is completed
-              subscriptionStatus: 'ACTIVE',
-              subscriptionPlan: planInterval,
-              subscriptionEndDate: endDate,
-              status: isActive ? 'ACTIVE' : 'INACTIVE',
-              users: { create: { userId, role: 'OWNER' } }
-            }
-          });
+          if (existingTenant) {
+            const updated = await prisma.tenant.update({
+              where: { id: existingTenant.id },
+              data: {
+                // Ensure tenant points to the latest Stripe objects
+                stripeCustomerId: customerId,
+                stripeSubscriptionId: subscriptionId,
+                subscriptionStatus: 'ACTIVE',
+                subscriptionPlan: planInterval,
+                subscriptionEndDate: endDate,
+                status: isActive ? 'ACTIVE' : 'INACTIVE',
+              },
+            });
 
-          console.log(`✅ Tenant created successfully:`, {
-            tenantId: tenant.id,
-            userId,
-            customerId,
-            subscriptionId,
-            status
-          });
+            console.log(`✅ Tenant updated successfully after checkout:`, {
+              tenantId: updated.id,
+              userId,
+              customerId,
+              subscriptionId,
+              status,
+            });
+          } else {
+            const tenant = await prisma.tenant.create({
+              data: {
+                name: `Tenant of ${user.name || user.email}`,
+                stripeCustomerId: customerId,
+                stripeSubscriptionId: subscriptionId,
+                // Mark app-level subscription as ACTIVE once checkout is completed
+                subscriptionStatus: 'ACTIVE',
+                subscriptionPlan: planInterval,
+                subscriptionEndDate: endDate,
+                status: isActive ? 'ACTIVE' : 'INACTIVE',
+                users: { create: { userId, role: 'OWNER' } }
+              }
+            });
+
+            console.log(`✅ Tenant created successfully:`, {
+              tenantId: tenant.id,
+              userId,
+              customerId,
+              subscriptionId,
+              status
+            });
+          }
         } catch (error) {
           console.error('❌ Error creating tenant:', error);
         }
@@ -139,17 +157,53 @@ export async function POST(request: Request) {
         const isActive = ['ACTIVE', 'TRIALING'].includes(status);
 
         // Update existing tenant
-        await prisma.tenant.updateMany({
+        const updated = await prisma.tenant.updateMany({
           where: { stripeCustomerId: customerId },
           data: {
             // On successful invoice payment, ensure subscriptionStatus is ACTIVE
             subscriptionStatus: 'ACTIVE',
             subscriptionPlan: planInterval,
             subscriptionEndDate: endDate,
+            // Keep subscription id in sync in case user re-subscribes
+            stripeSubscriptionId: subscriptionId,
             status: isActive ? 'ACTIVE' : 'INACTIVE'
           }
         });
-        console.log(`🔄 Tenant updated for subscription ${subscriptionId}`);
+
+        // Fallback: older tenants may not have stripeCustomerId persisted.
+        if (updated.count === 0) {
+          try {
+            const customer = await stripe.customers.retrieve(customerId);
+            const fallbackUserId = (customer as Stripe.Customer).metadata?.userId;
+            if (fallbackUserId) {
+              await prisma.tenant.updateMany({
+                where: {
+                  users: {
+                    some: {
+                      userId: fallbackUserId,
+                      role: 'OWNER',
+                    },
+                  },
+                },
+                data: {
+                  stripeCustomerId: customerId,
+                  stripeSubscriptionId: subscriptionId,
+                  subscriptionStatus: 'ACTIVE',
+                  subscriptionPlan: planInterval,
+                  subscriptionEndDate: endDate,
+                  status: isActive ? 'ACTIVE' : 'INACTIVE',
+                },
+              });
+              console.log(`🔄 Tenant updated via customer.metadata.userId for subscription ${subscriptionId}`);
+            } else {
+              console.warn(`⚠️ No tenant matched for invoice.payment_succeeded (customerId=${customerId}, subscriptionId=${subscriptionId})`);
+            }
+          } catch (e) {
+            console.error('❌ Fallback tenant update failed on invoice.payment_succeeded', e);
+          }
+        } else {
+          console.log(`🔄 Tenant updated for subscription ${subscriptionId}`);
+        }
         break;
       }
 
