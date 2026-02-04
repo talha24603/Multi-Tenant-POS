@@ -145,9 +145,9 @@ export default function SignInPage() {
   // If user is already authenticated, show loading
   if (status === "authenticated") {
     return (
-      <div className="min-h-screen w-full flex flex-col bg-white">
+      <div className="min-h-screen flex flex-col bg-white">
         <Navbar />
-        <div className="flex flex-1 items-center justify-center w">
+        <div className="flex flex-1 items-center justify-center">
           <Card className="w-full max-w-md shadow-none border-none">
             <CardContent className="flex flex-col items-center justify-center py-8">
               <div className="mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
