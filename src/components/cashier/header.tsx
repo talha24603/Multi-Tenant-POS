@@ -10,7 +10,12 @@ export function CashierHeader() {
   return (
     <div className="flex items-center justify-between mb-4">
       <div>
-        <h2 className="text-2xl font-bold">Welcome, Alex (Cashier)</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-2xl font-bold">Welcome, Alex (Cashier)</h2>
+          <span className="rounded-full bg-primary/10 px-3 py-0.5 text-xs font-semibold tracking-wide text-primary">
+            SIDZ
+          </span>
+        </div>
         <p className="text-sm text-muted-foreground">Shift: Morning (9:00 AM - 5:00 PM)</p>
       </div>
       <div className="flex items-center gap-3">

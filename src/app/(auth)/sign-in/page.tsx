@@ -4,14 +4,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { FcGoogle } from "react-icons/fc"
-import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import signInWithGoogle from "../sign-up/signUpWithGoogle"
 import { Roboto } from "next/font/google"
+import { Navbar } from "@/components/Navbar"
 
 const roboto = Roboto({
   weight: ["400", "700"],
@@ -43,7 +43,9 @@ export default function SignInPage() {
       console.log("Sign in response:", result);
       if (!result || result.error) {
         console.error("Sign in error:", result?.error);
-        if (result?.error?.includes("fetch")) {
+        if (result?.error === "Configuration") {
+          toast.error("Connection is slow or unstable. Please try again.");
+        } else if (result?.error?.includes("fetch")) {
           toast.error("Network error. Please check your connection.");
         } else {
           toast.error(result?.error || "Invalid email or password");
@@ -143,45 +145,23 @@ export default function SignInPage() {
   // If user is already authenticated, show loading
   if (status === "authenticated") {
     return (
-      <div className="min-h-screen flex flex-col bg-white">
-        <Card className="w-full max-w-md shadow-none border-none">
-          <CardContent className="flex flex-col items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-4"></div>
-            <p className="text-muted-foreground">Redirecting to your dashboard...</p>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen w-full flex flex-col bg-white">
+        <Navbar />
+        <div className="flex flex-1 items-center justify-center w">
+          <Card className="w-full max-w-md shadow-none border-none">
+            <CardContent className="flex flex-col items-center justify-center py-8">
+              <div className="mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
+              <p className="text-muted-foreground">Redirecting to your dashboard...</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
   
   return (
-    <div className="min-h-screen flex flex-col items-center  bg-white">
-      <nav className="w-full px-4 sm:px-8 py-4 flex items-center justify-between  bg-background/90 backdrop-blur-md sticky top-0 z-20 shadow-sm">
-        <div className="flex items-center gap-3">
-          <Link href="/">
-          <Image src="/2.png" alt="SIDZ" width={100} height={40} />
-          </Link>
-          {/* <span className="font-bold text-xl tracking-tight bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">SIDDZ</span> */}
-        </div>
-        <div className="hidden md:flex items-center gap-6 text-sm font-medium">
-        <a href="/features" className="hover:text-primary transition-colors duration-200">Features</a>
-          <a href="/buy-tenant" className="hover:text-primary transition-colors duration-200">Pricing</a>
-          <a href="/reviews" className="hover:text-primary transition-colors duration-200">Reviews</a>
-          	{/* {user ?(
-            <button
-              onClick={() => signOut({ callbackUrl: "/" })}
-              className="bg-destructive text-destructive-foreground px-4 py-2 rounded-lg shadow-lg hover:bg-destructive/90 transition-all duration-200 hover:scale-105"
-            >
-              Logout
-            </button>
-          ) : ( */}
-            <>
-              <a href="/sign-in" className="hover:text-primary transition-colors duration-200">Sign In</a>
-              <a href="/sign-up" className="bg-primary text-primary-foreground px-6 py-2 rounded-lg shadow-lg hover:bg-primary/90 transition-all duration-200 hover:scale-105 hover:shadow-xl">Sign Up</a>
-            </>
-          {/* )} */}
-        </div>
-      </nav>
+    <div className="min-h-screen flex flex-col items-center bg-white">
+      <Navbar />
       <Card className="w-full max-w-md shadow-none border-none">
         <CardHeader className="flex flex-col items-center ">
           {/* <Image src="/2.png" alt="Logo" width={48} height={100} /> */}

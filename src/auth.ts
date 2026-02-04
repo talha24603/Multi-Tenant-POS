@@ -40,22 +40,36 @@ export const authOptions: NextAuthConfig = {
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials: any) => {
+        // IMPORTANT:
+        // In NextAuth, throwing from `authorize` often surfaces as an
+        // "Configuration" error to the client. To avoid users seeing that
+        // (especially on flaky/slow connections), return `null` on failures.
         try {
-          const user = await prisma.user.findUnique({ where: { email: credentials.email } })
-          if (!user) throw new Error("invalid email or password")
-          const isMatch = await compare(credentials.password, user.password || "")
-          if (!isMatch) throw new Error("incorrect password")
-          if (!user.isVerified) throw new Error("Account not verified. Please verify your email before logging in.")
-          return {  
-            id: user.id,           
-            name: user.name || "", 
-            email: user.email, 
-            isVerified: user.isVerified, 
+          const email = typeof credentials?.email === "string" ? credentials.email : "";
+          const password = typeof credentials?.password === "string" ? credentials.password : "";
+
+          if (!email || !password) return null;
+
+          const user = await prisma.user.findUnique({ where: { email } });
+          if (!user) return null;
+
+          // Disallow non-verified users from signing in
+          if (!user.isVerified) return null;
+
+          const isMatch = await compare(password, user.password || "");
+          if (!isMatch) return null;
+
+          return {
+            id: user.id,
+            name: user.name || "",
+            email: user.email,
+            isVerified: user.isVerified,
             stripeCustomerId: user.stripeCustomerId,
-          }
+          };
         } catch (error) {
-          console.error("Auth error:", error)
-          throw error
+          // Log server-side for debugging, but don't throw (prevents "Configuration" UI).
+          //console.error("Auth authorize error:", error);
+          return null;
         }
       },
     }),
@@ -124,11 +138,11 @@ export const authOptions: NextAuthConfig = {
           // Check if user is superAdmin (temporary workaround until Prisma client is regenerated)
           const isSuperAdmin = dbUser.email === "superadmin@gmail.com";
 
-          console.log("🔍 Auth Debug:", {
-            email: dbUser.email,
-            isSuperAdmin,
-            tenants: dbUser.tenants.length,
-          });
+          // console.log("🔍 Auth Debug:", {
+          //   email: dbUser.email,
+          //   isSuperAdmin,
+          //   tenants: dbUser.tenants.length,
+          // });
 
           if (isSuperAdmin) {
             token.role = "superAdmin";
@@ -150,13 +164,13 @@ export const authOptions: NextAuthConfig = {
               ? (tenantUser.tenant.subscriptionEndDate as Date).toISOString()
               : null;
 
-            console.log("🔍 Tenant Status Debug:", {
-              email: dbUser.email,
-              tenantId: token.tenantId,
-              tenantName: token.tenantName,
-              tenantStatus: token.tenantStatus,
-              role: token.role,
-            });
+            // console.log("🔍 Tenant Status Debug:", {
+            //   email: dbUser.email,
+            //   tenantId: token.tenantId,
+            //   tenantName: token.tenantName,
+            //   tenantStatus: token.tenantStatus,
+            //   role: token.role,
+            // });
           }
         }
       }

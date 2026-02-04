@@ -147,15 +147,13 @@ function SuccessPageContent() {
       <div className="space-y-4 w-full max-w-md">
         <button
           onClick={() => router.push('/admin/tenant-setup')}
-          disabled={syncingAccess}
-          className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition"
+          className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition disabled:opacity-60"
         >
           Complete Tenant Setup
         </button>
         <button
           onClick={() => router.push('/admin')}
-          disabled={syncingAccess}
-          className="w-full px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/90 transition"
+          className="w-full px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/90 transition disabled:opacity-60"
         >
           Go to Dashboard
         </button>

@@ -3,9 +3,8 @@ import React, { useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
 import { ArrowRight, CheckCircle, Star, ShoppingCart, Lock } from "lucide-react";
-import Link from "next/link";
+import { Navbar } from "@/components/Navbar";
 
 // Load Stripe only once
 const stripePromise = loadStripe(
@@ -66,21 +65,7 @@ export default function BuyTenantPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-secondary/20 text-foreground font-sans">
-      {/* Navbar */}
-      <nav className="w-full px-4 sm:px-8 py-4 flex items-center justify-between border-border/50 bg-background/90 backdrop-blur-md sticky top-0 z-20 shadow-sm">
-        <div className="flex items-center gap-3">
-          <Link href="/">
-          <Image src="/2.png" alt="SIDZ" width={100} height={40} />
-          </Link>
-        </div>
-        <div className="hidden md:flex items-center gap-6 text-sm font-medium">
-          <a href="/features" className="hover:text-primary transition-colors duration-200">Features</a>
-          <a href="/buy-tenant" className="text-primary">Pricing</a>
-          <a href="/reviews" className="hover:text-primary transition-colors duration-200">Reviews</a>
-          <a href="/sign-in" className="hover:text-primary transition-colors duration-200">Sign In</a>
-          <a href="/sign-up" className="bg-primary text-primary-foreground px-6 py-2 rounded-lg shadow-lg hover:bg-primary/90 transition-all duration-200 hover:scale-105 hover:shadow-xl">Sign Up</a>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Main Content */}
       <div className="flex flex-col items-center justify-center px-4 py-12 flex-1">
