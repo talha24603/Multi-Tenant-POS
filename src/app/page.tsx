@@ -9,64 +9,59 @@ export default function Home() {
       <Navbar />
 
       {/* Hero Section with Enhanced Banner */}
-      <header className="relative flex-1 flex flex-col items-center justify-center px-4 py-20 text-center gap-8 overflow-hidden">
-        {/* Background decorative elements */}
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl"></div>
+      <header className="relative flex-1 flex flex-col items-center justify-center px-4 py-20 text-center gap-10 overflow-hidden">
+        {/* Background decorative elements - animated */}
+        <div className="absolute inset-0 -z-10 overflow-hidden">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse-glow"></div>
+          <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary/20 rounded-full blur-3xl animate-pulse-glow" style={{ animationDelay: "1s" }}></div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl"></div>
         </div>
+
+        {/* Logo with float animation */}
+        {/* <div className="relative z-10 opacity-0 animate-fade-in-up animation-delay-100">
+          <div className="inline-flex items-center justify-center rounded-2xl bg-background/80 border border-border/50 shadow-2xl p-4 animate-float">
+            <Image src="/logo.png" alt="POS SaaS" width={80} height={80} className="object-contain" priority />
+          </div>
+        </div> */}
         
         {/* Main hero content */}
-        <div className="relative z-10">
-          {/* <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-6 border border-primary/20">
-            <Star className="w-4 h-4 fill-primary" />
-            Trusted by 10,000+ businesses worldwide
-          </div> */}
-          
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-            <span>
-              Supercharge
-            </span>
+        <div className="relative z-10 space-y-6">
+          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight opacity-0 animate-fade-in-up animation-delay-200">
+            <span>Supercharge</span>
             <br />
             <span className="text-foreground">Your Business</span>
           </h1>
           
-          <p className="text-xl sm:text-2xl text-muted-foreground max-w-3xl mx-auto mb-8 leading-relaxed">
-            Streamline sales, manage inventory, and grow your business with our all-in-one 
-            <span className="font-semibold text-foreground"> Point of Sale platform</span>.
+          <p className="text-xl sm:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed opacity-0 animate-fade-in-up animation-delay-300">
+            Streamline sales, manage inventory, and grow your business with our all-in-one{" "}
+            <span className="font-semibold text-foreground">Point of Sale platform</span>.
           </p>
-          
-          {/* <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
-        <a
-          href="/sign-up"
-              className="group inline-flex items-center gap-2 bg-primary text-primary-foreground px-8 py-4 rounded-xl font-semibold text-lg shadow-2xl hover:bg-primary/90 transition-all duration-300 hover:scale-105 hover:shadow-primary/25"
-            >
-              Start Free Trial
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
-            </a>
-            <a
-              href="#demo"
-              className="inline-flex items-center gap-2 bg-secondary text-secondary-foreground px-8 py-4 rounded-xl font-semibold text-lg border-2 border-border hover:bg-secondary/80 transition-all duration-200 hover:scale-105"
-            >
-              Watch Demo
-            </a>
-          </div> */}
-          
-          {/* Trust indicators
-          <div className="flex items-center justify-center gap-8 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-green-500" />
-              <span>No credit card required</span>
+        </div>
+
+        {/* App preview mockup - dashboard/register image */}
+        <div className="relative z-10 w-full max-w-4xl mx-auto mt-6 opacity-0 animate-fade-in-up animation-delay-500">
+          <div className="relative rounded-2xl border border-border/60 bg-card shadow-2xl overflow-hidden">
+            {/* Browser-style chrome */}
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-border/50 bg-muted/30">
+              <div className="flex gap-1.5">
+                <span className="w-3 h-3 rounded-full bg-red-500/80"></span>
+                <span className="w-3 h-3 rounded-full bg-amber-500/80"></span>
+                <span className="w-3 h-3 rounded-full bg-green-500/80"></span>
+              </div>
+              <div className="flex-1 flex justify-center">
+                <span className="text-xs text-muted-foreground font-medium">app.yourpos.com</span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-green-500" />
-              <span>14-day free trial</span>
+            <div className="relative aspect-video bg-muted/20 min-h-[240px] flex items-center justify-center p-4">
+              <Image
+                src="/banner.png"
+                alt="POS dashboard preview"
+                fill
+                className="object-contain p-4"
+                sizes="(max-width: 896px) 100vw, 896px"
+              />
             </div>
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-green-500" />
-              <span>Cancel anytime</span>
-            </div>
-          </div> */}
+          </div>
         </div>
       </header>
 
@@ -74,21 +69,57 @@ export default function Home() {
       <section className="py-16 bg-gradient-to-r from-primary/5 via-secondary/10 to-primary/5 border-y border-border/50">
         <div className="max-w-6xl mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div className="space-y-2">
+            <div className="space-y-2 opacity-0 animate-fade-in-up animation-delay-100 hover:scale-105 transition-transform duration-300">
               <div className="text-3xl md:text-4xl font-bold text-primary">10K+</div>
               <div className="text-sm text-muted-foreground">Active Businesses</div>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 opacity-0 animate-fade-in-up animation-delay-200 hover:scale-105 transition-transform duration-300">
               <div className="text-3xl md:text-4xl font-bold text-primary">$2M+</div>
               <div className="text-sm text-muted-foreground">Revenue Processed</div>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 opacity-0 animate-fade-in-up animation-delay-300 hover:scale-105 transition-transform duration-300">
               <div className="text-3xl md:text-4xl font-bold text-primary">99.9%</div>
               <div className="text-sm text-muted-foreground">Uptime</div>
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 opacity-0 animate-fade-in-up animation-delay-400 hover:scale-105 transition-transform duration-300">
               <div className="text-3xl md:text-4xl font-bold text-primary">24/7</div>
               <div className="text-sm text-muted-foreground">Support</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* App imagery section - POS in action */}
+      <section className="py-16 bg-muted/30 overflow-hidden">
+        <div className="max-w-6xl mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12 opacity-0 animate-fade-in-up">See the App in Action</h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="rounded-2xl border border-border/50 bg-card overflow-hidden shadow-lg opacity-0 animate-scale-in animation-delay-100 group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+              <div className="aspect-video bg-primary/5 flex items-center justify-center p-6">
+                <ShoppingCart className="w-16 h-16 text-primary/60" />
+              </div>
+              <div className="p-4 text-center">
+                <p className="font-medium">Fast checkout</p>
+                <p className="text-sm text-muted-foreground">Ring up sales in seconds</p>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-border/50 bg-card overflow-hidden shadow-lg opacity-0 animate-scale-in animation-delay-200 group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+              <div className="aspect-video bg-primary/5 flex items-center justify-center p-6">
+                <BarChart3 className="w-16 h-16 text-primary/60" />
+              </div>
+              <div className="p-4 text-center">
+                <p className="font-medium">Real-time analytics</p>
+                <p className="text-sm text-muted-foreground">Insights that drive growth</p>
+              </div>
+            </div>
+            <div className="rounded-2xl border border-border/50 bg-card overflow-hidden shadow-lg opacity-0 animate-scale-in animation-delay-300 group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+              <div className="aspect-video bg-primary/5 flex items-center justify-center p-6">
+                <Smartphone className="w-16 h-16 text-primary/60" />
+              </div>
+              <div className="p-4 text-center">
+                <p className="font-medium">Works everywhere</p>
+                <p className="text-sm text-muted-foreground">Desktop, tablet & mobile</p>
+              </div>
             </div>
           </div>
         </div>
@@ -97,7 +128,7 @@ export default function Home() {
       {/* Enhanced Features Section */}
       <section id="features" className="py-20 bg-background">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-16">
+          <div className="text-center mb-16 opacity-0 animate-fade-in-up">
             <h2 className="text-4xl font-bold mb-4">Everything You Need to Succeed</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Powerful features designed to streamline your business operations and boost your bottom line
@@ -105,7 +136,7 @@ export default function Home() {
           </div>
           
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <div className="group p-8 rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 bg-gradient-to-br from-background to-secondary/5">
+            <div className="group p-8 rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 bg-gradient-to-br from-background to-secondary/5 opacity-0 animate-fade-in-up animation-delay-100">
               <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-200">
                 <ShoppingCart className="w-7 h-7 text-primary" />
               </div>
@@ -115,7 +146,7 @@ export default function Home() {
               </p>
             </div>
             
-            <div className="group p-8 rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 bg-gradient-to-br from-background to-secondary/5">
+            <div className="group p-8 rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 bg-gradient-to-br from-background to-secondary/5 opacity-0 animate-fade-in-up animation-delay-200">
               <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-200">
                 <BarChart3 className="w-7 h-7 text-primary" />
               </div>
@@ -125,7 +156,7 @@ export default function Home() {
               </p>
             </div>
             
-            <div className="group p-8 rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 bg-gradient-to-br from-background to-secondary/5">
+            <div className="group p-8 rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 bg-gradient-to-br from-background to-secondary/5 opacity-0 animate-fade-in-up animation-delay-300">
               <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-200">
                 <TrendingUp className="w-7 h-7 text-primary" />
               </div>
@@ -135,7 +166,7 @@ export default function Home() {
               </p>
             </div>
             
-            <div className="group p-8 rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 bg-gradient-to-br from-background to-secondary/5">
+            <div className="group p-8 rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 bg-gradient-to-br from-background to-secondary/5 opacity-0 animate-fade-in-up animation-delay-400">
               <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-200">
                 <Smartphone className="w-7 h-7 text-primary" />
               </div>
@@ -145,7 +176,7 @@ export default function Home() {
               </p>
             </div>
             
-            <div className="group p-8 rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 bg-gradient-to-br from-background to-secondary/5">
+            <div className="group p-8 rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 bg-gradient-to-br from-background to-secondary/5 opacity-0 animate-fade-in-up animation-delay-500">
               <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-200">
                 <Users className="w-7 h-7 text-primary" />
               </div>
@@ -155,7 +186,7 @@ export default function Home() {
               </p>
             </div>
             
-            <div className="group p-8 rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 bg-gradient-to-br from-background to-secondary/5">
+            <div className="group p-8 rounded-2xl border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5 bg-gradient-to-br from-background to-secondary/5 opacity-0 animate-fade-in-up animation-delay-700">
               <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-200">
                 <Shield className="w-7 h-7 text-primary" />
               </div>
@@ -171,9 +202,9 @@ export default function Home() {
       {/* Testimonials Banner */}
       <section id="testimonials" className="py-20 bg-gradient-to-r from-secondary/10 via-background to-primary/10">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-12">Loved by Businesses Everywhere</h2>
+          <h2 className="text-3xl font-bold mb-12 opacity-0 animate-fade-in-up">Loved by Businesses Everywhere</h2>
           <div className="grid gap-8 md:grid-cols-2">
-            <div className="p-6 bg-background rounded-2xl border border-border/50 shadow-lg">
+            <div className="p-6 bg-background rounded-2xl border border-border/50 shadow-lg opacity-0 animate-slide-in-left animation-delay-200 hover:shadow-xl transition-shadow duration-300">
               <div className="flex items-center gap-1 mb-4 justify-center">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
@@ -186,7 +217,7 @@ export default function Home() {
               <div className="text-sm text-muted-foreground">Owner, Fresh Market</div>
             </div>
             
-            <div className="p-6 bg-background rounded-2xl border border-border/50 shadow-lg">
+            <div className="p-6 bg-background rounded-2xl border border-border/50 shadow-lg opacity-0 animate-slide-in-right animation-delay-300 hover:shadow-xl transition-shadow duration-300">
               <div className="flex items-center gap-1 mb-4 justify-center">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
