@@ -160,7 +160,7 @@ export default function SignInPage() {
   }
   
   return (
-    <div className="min-h-screen flex flex-col items-center bg-white">
+    <div className="min-h-screen w-full flex flex-col items-center bg-white">
       <Navbar />
       <Card className="w-full max-w-md shadow-none border-none">
         <CardHeader className="flex flex-col items-center ">
