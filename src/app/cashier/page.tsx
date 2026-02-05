@@ -11,7 +11,7 @@ import { useEffect } from "react"
 import { useCashier } from "@/context/cashier-context"
 
 function CashierDashboardContent() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const { setTenantId, state } = useCashier()
 
   useEffect(() => {
@@ -19,6 +19,14 @@ function CashierDashboardContent() {
       setTenantId(session.user.tenantId)
     }
   }, [session?.user?.tenantId, state.tenantId])
+
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen w-full flex justify-center items-center bg-background">
+        <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
+  }
 
   if (!session?.user?.tenantId) {
     return (

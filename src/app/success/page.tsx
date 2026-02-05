@@ -2,7 +2,8 @@
 'use client';
 
 import React, { useEffect, useState, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 
 interface SessionDetails {
@@ -15,7 +16,6 @@ interface SessionDetails {
 function SuccessPageContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
-  const router = useRouter();
   const { status: authStatus, update } = useSession();
   const [loading, setLoading] = useState(true);
   const [details, setDetails] = useState<SessionDetails | null>(null);
@@ -96,12 +96,12 @@ function SuccessPageContent() {
       <div className="p-8 text-center">
         <h2 className="text-xl font-bold text-red-600">Error</h2>
         <p className="mt-2">{error}</p>
-        <button
-          onClick={() => router.push('/')}
-          className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded"
+        <Link
+          href="/"
+          className="mt-4 inline-block px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
         >
           Go Home
-        </button>
+        </Link>
       </div>
     );
   }
@@ -145,20 +145,18 @@ function SuccessPageContent() {
       )}
       
       <div className="space-y-4 w-full max-w-md">
-        <button
-          onClick={() => router.push('/admin/tenant-setup')}
-          disabled={syncingAccess}
-          className="w-full px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition"
+        <Link
+          href="/admin/tenant-setup"
+          className="w-full inline-block px-6 py-3 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition text-center"
         >
           Complete Tenant Setup
-        </button>
-        <button
-          onClick={() => router.push('/admin')}
-          disabled={syncingAccess}
-          className="w-full px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/90 transition"
+        </Link>
+        <Link
+          href="/admin"
+          className="w-full inline-block px-6 py-3 bg-secondary text-secondary-foreground rounded-lg font-medium hover:bg-secondary/90 transition text-center"
         >
           Go to Dashboard
-        </button>
+        </Link>
       </div>
     </div>
   );
