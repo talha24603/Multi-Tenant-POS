@@ -135,8 +135,8 @@ export const authOptions: NextAuthConfig = {
           token.isVerified = dbUser.isVerified;
           token.stripeCustomerId = dbUser.stripeCustomerId;
 
-          // Check if user is superAdmin (temporary workaround until Prisma client is regenerated)
-          const isSuperAdmin = dbUser.email === "superadmin@gmail.com";
+          // Check if user is superAdmin (from database flag)
+          const isSuperAdmin = dbUser.isSuperAdmin === true;
 
           // console.log("🔍 Auth Debug:", {
           //   email: dbUser.email,

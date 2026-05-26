@@ -1,6 +1,7 @@
 import { AdminSidebar } from "@/components/admin/sidebar"
 import { TenantStatusWarning } from "@/components/TenantStatusWarning"
 import { TenantStatusCheck } from "@/components/TenantStatusCheck"
+import { ChatbotWidget } from "@/components/chatbot/chatbot-widget"
 
 export default function AdminLayout({
   children,
@@ -17,6 +18,7 @@ export default function AdminLayout({
           {children}
         </main>
       </div>
+      <ChatbotWidget />
     </>
   )
 } 
