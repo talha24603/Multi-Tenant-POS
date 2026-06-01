@@ -10,7 +10,7 @@ export interface ChatbotResponse {
 }
 
 export async function sendChatQuestion(
-  tenantId: string,
+  tenant_id: string,
   question: string
 ): Promise<string> {
   const response = await fetch("/api/chatbot", {
@@ -18,7 +18,7 @@ export async function sendChatQuestion(
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ tenantId, question }),
+    body: JSON.stringify({ tenant_id, question }),
   })
 
   if (!response.ok) {

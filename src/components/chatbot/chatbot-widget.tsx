@@ -21,7 +21,7 @@ function createMessage(role: ChatMessage["role"], content: string): ChatMessage 
 
 export function ChatbotWidget() {
   const { data: session } = useSession()
-  const tenantId = session?.user?.tenantId
+  const tenant_id = session?.user?.tenantId
 
   const [isOpen, setIsOpen] = useState(false)
   const [input, setInput] = useState("")
@@ -50,7 +50,7 @@ export function ChatbotWidget() {
     const question = input.trim()
     if (!question || isLoading) return
 
-    if (!tenantId) {
+    if (!tenant_id) {
       toast.error("No tenant found. Please sign in with a store account.")
       return
     }
@@ -61,7 +61,7 @@ export function ChatbotWidget() {
     setIsLoading(true)
 
     try {
-      const answer = await sendChatQuestion(tenantId, question)
+      const answer = await sendChatQuestion(tenant_id, question)
       setMessages((prev) => [...prev, createMessage("assistant", answer)])
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to get a response"
@@ -91,7 +91,7 @@ export function ChatbotWidget() {
     ])
   }
 
-  if (!tenantId) {
+  if (!tenant_id) {
     return null
   }
 

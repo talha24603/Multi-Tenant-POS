@@ -22,23 +22,23 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  let body: { tenantId?: string; question?: string }
+  let body: { tenant_id?: string; question?: string }
   try {
     body = await request.json()
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
   }
 
-  const { tenantId, question } = body
+  const { tenant_id, question } = body
 
-  if (!tenantId || !question?.trim()) {
+  if (!tenant_id || !question?.trim()) {
     return NextResponse.json(
-      { error: "tenantId and question are required" },
+      { error: "tenant_id and question are required" },
       { status: 400 }
     )
   }
 
-  if (session.user.tenantId && session.user.tenantId !== tenantId) {
+  if (session.user.tenantId && session.user.tenantId !== tenant_id) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
     const response = await fetch(`${baseUrl}/assistant`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tenantId, question: question.trim() }),
+      body: JSON.stringify({ tenant_id, question: question.trim() }),
     })
 
     const data = await response.json().catch(() => ({}))
