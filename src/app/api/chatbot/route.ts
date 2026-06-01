@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const response = await fetch(`${baseUrl}/query`, {
+    const response = await fetch(`${baseUrl}/assistant`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ tenantId, question: question.trim() }),
